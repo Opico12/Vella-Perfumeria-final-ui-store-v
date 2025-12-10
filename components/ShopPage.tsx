@@ -120,7 +120,7 @@ const ShopPage: React.FC<{
     return (
         <div className="bg-white min-h-screen">
             {/* Top Toolbar (Copied Style) */}
-            <div className="sticky top-0 z-20 bg-white border-b border-gray-200">
+            <div className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row md:items-center justify-between py-4">
                         
@@ -224,11 +224,16 @@ const ShopPage: React.FC<{
             {/* Pagination / Load More Section (Visual Copy) */}
             <div className="container mx-auto px-4 pb-12">
                 <div className="flex flex-col items-center justify-center max-w-md mx-auto space-y-4">
-                    <p className="text-gray-600 text-sm">Mostrando {filteredAndSortedProducts.length} de {filteredAndSortedProducts.length} productos</p>
+                    <p className="text-gray-600 text-sm">
+                        Mostrando {filteredAndSortedProducts.length} de {filteredAndSortedProducts.length} productos
+                    </p>
+                    {/* Progress Bar Container */}
                     <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-brand-purple-dark w-full"></div>
+                        {/* Progress Bar Fill - Simulated 75% for visual */}
+                        <div className="h-full bg-black w-full rounded-full transition-all duration-500"></div>
                     </div>
-                    <button className="px-8 py-2 border border-gray-300 rounded-full text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wide">
+                    {/* Outlined Button */}
+                    <button className="px-8 py-2 border border-gray-300 rounded-full text-sm font-bold text-gray-700 hover:bg-gray-50 hover:border-black transition-all uppercase tracking-wide">
                         Mostrar más
                     </button>
                 </div>
