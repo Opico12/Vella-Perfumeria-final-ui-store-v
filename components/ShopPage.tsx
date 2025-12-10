@@ -62,27 +62,15 @@ const ShopPage: React.FC<{
         setSortOrder(e.target.value);
     };
 
-    // Función para generar y descargar el CSV
+    // Client-Side CSV Generation Logic
     const handleDownloadCsv = () => {
-        // Headers coincidentes con el formato solicitado en products.csv
         const headers = [
-            'sku', 
-            'name',
-            'description',
-            'short_description', 
-            'brand',
-            'sale_price', 
-            'regular_price', 
-            'stock', 
-            'categories', 
-            'tags', 
-            'images'
+            'sku', 'name', 'description', 'short_description', 'brand', 'sale_price', 'regular_price', 'stock', 'categories', 'tags', 'images'
         ];
 
         const escapeCsvField = (field: string | number | undefined) => {
             if (field === undefined || field === null) return '';
             const stringField = String(field);
-            // Si contiene comillas, comas o saltos de línea, envolver en comillas y duplicar las comillas internas
             if (stringField.includes('"') || stringField.includes(',') || stringField.includes('\n')) {
                 return `"${stringField.replace(/"/g, '""')}"`;
             }
@@ -90,18 +78,15 @@ const ShopPage: React.FC<{
         };
 
         const rows = allProducts.map(p => {
-            // Determine price logic for E-commerce CSV import:
-            // If discounted: sale_price = price, regular_price = regularPrice
-            // If not discounted: sale_price = empty, regular_price = price
             const isDiscounted = p.regularPrice && p.price < p.regularPrice;
             const salePrice = isDiscounted ? p.price : '';
             const regularPrice = isDiscounted ? p.regularPrice : p.price;
 
             return [
-                p.id, // Mapped to SKU
+                p.id,
                 escapeCsvField(p.name),
                 escapeCsvField(p.description),
-                escapeCsvField(p.name), // Using name as short description fallback
+                escapeCsvField(p.name), // Short description
                 escapeCsvField(p.brand),
                 salePrice,
                 regularPrice,
@@ -109,26 +94,23 @@ const ShopPage: React.FC<{
                 escapeCsvField(p.category),
                 escapeCsvField(p.tag || ''),
                 escapeCsvField(p.imageUrl)
-            ];
+            ].join(',');
         });
 
-        const csvContent = [
-            headers.join(','), 
-            ...rows.map(row => row.join(','))
-        ].join('\n');
-
+        // Add BOM \uFEFF so Excel opens utf-8 chars correctly
+        const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n');
+        
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.setAttribute('href', url);
-        link.setAttribute('download', 'productos_vellaperfumeria.csv');
+        link.setAttribute('download', 'productos_vellaperfumeria_completo.csv');
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         
-        // Alerta de confirmación
-        alert("¡Archivo CSV generado con éxito! Revise su carpeta de Descargas.");
+        alert("¡Archivo CSV generado y descargado! Puedes importarlo en tu tienda.");
     };
 
     const currentCategoryName = categories.find(c => c.key === activeCategory)?.name || 'Tienda';

@@ -53,10 +53,10 @@ const CsvIcon = () => (
     </svg>
 );
 
-const NavLink: React.FC<{ onClick?: () => void, href?: string, children: React.ReactNode, className?: string, download?: boolean }> = ({ onClick, href, children, className, download }) => {
+const NavLink: React.FC<{ onClick?: () => void, href?: string, children: React.ReactNode, className?: string }> = ({ onClick, href, children, className }) => {
     if (href) {
         return (
-            <a href={href} download={download} className={`text-sm font-bold text-black hover:text-gray-700 transition-colors duration-200 uppercase tracking-tight ${className}`}>
+            <a href={href} className={`text-sm font-bold text-black hover:text-gray-700 transition-colors duration-200 uppercase tracking-tight ${className}`}>
                 <span className="hover-underline-effect">{children}</span>
             </a>
         );
@@ -68,10 +68,10 @@ const NavLink: React.FC<{ onClick?: () => void, href?: string, children: React.R
     );
 };
 
-const MenuLink: React.FC<{ onClick?: () => void, href?: string, children: React.ReactNode, download?: boolean, className?: string }> = ({ onClick, href, children, download, className = "" }) => {
+const MenuLink: React.FC<{ onClick?: () => void, href?: string, children: React.ReactNode, className?: string }> = ({ onClick, href, children, className = "" }) => {
     const baseClassName = "text-sm font-bold text-white hover:text-[#f78df6] transition-colors duration-200 uppercase tracking-wide flex items-center gap-1 " + className;
     if (href) {
-        return <a href={href} download={download} className={baseClassName}>{children}</a>;
+        return <a href={href} className={baseClassName}>{children}</a>;
     }
     return <button onClick={onClick} className={baseClassName}>{children}</button>;
 };
@@ -113,12 +113,53 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
         setIsMobileMenuOpen(false);
     }
 
-    // Encuentra productos específicos para el Mega Menú (extraídos del HTML del usuario)
-    const productRiviera = allProducts.find(p => p.id === 41070); // Novage+
-    const productAzur = allProducts.find(p => p.id === 47502); // Mister Giordani
-    const productFloral = allProducts.find(p => p.id === 47514); // Miss Giordani Floral
+    // Dynamic CSV Generation function
+    const generateAndDownloadCsv = () => {
+        const headers = [
+            'sku', 'name', 'description', 'brand', 'sale_price', 'regular_price', 'stock', 'categories', 'tags', 'images'
+        ];
 
-    // Configuración del Mega Menú con Banners
+        const escapeField = (field: any) => {
+            if (field === null || field === undefined) return '';
+            const str = String(field);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const rows = allProducts.map(p => {
+            const isDiscounted = p.regularPrice && p.price < p.regularPrice;
+            return [
+                p.id,
+                escapeField(p.name),
+                escapeField(p.description),
+                escapeField(p.brand),
+                isDiscounted ? p.price : '', // Sale Price only if discounted
+                isDiscounted ? p.regularPrice : p.price, // Regular Price
+                p.stock,
+                escapeField(p.category),
+                escapeField(p.tag || ''),
+                escapeField(p.imageUrl)
+            ].join(',');
+        });
+
+        const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n'); // Add BOM for Excel compatibility
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'productos_vellaperfumeria_completo.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // Encuentra productos específicos para el Mega Menú
+    const productRiviera = allProducts.find(p => p.id === 41070); 
+    const productAzur = allProducts.find(p => p.id === 47502); 
+    const productFloral = allProducts.find(p => p.id === 47514);
+
     const promoCols = [
         {
             bannerImg: "https://media-cdn.oriflame.com/contentImage?externalMediaId=eb8edbeb-1ff0-427f-878c-8b23062b1aa6&name=Promo_split_single_1&inputFormat=jpg",
@@ -188,17 +229,15 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
                             </div>
                         </div>
 
-                        {/* Center Logo - Original Color (Filters Removed) */}
+                        {/* Center Logo */}
                         <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                            <form action="https://vellaperfumeria.com" method="GET" target="_top">
-                                <button type="submit" className="block hover:opacity-80 transition-opacity">
-                                    <img 
-                                        src="https://i0.wp.com/vellaperfumeria.com/wp-content/uploads/2025/06/1000003724-removebg-preview.png" 
-                                        alt="Vellaperfumeria" 
-                                        className="h-24 md:h-32 w-auto" 
-                                    />
-                                </button>
-                            </form>
+                            <button onClick={() => onNavigate('home')} className="block hover:opacity-80 transition-opacity">
+                                <img 
+                                    src="https://i0.wp.com/vellaperfumeria.com/wp-content/uploads/2025/06/1000003724-removebg-preview.png" 
+                                    alt="Vellaperfumeria" 
+                                    className="h-24 md:h-32 w-auto" 
+                                />
+                            </button>
                         </div>
 
                         {/* Right Actions (Cart) */}
@@ -220,7 +259,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
             <div className="hidden md:block bg-black w-full border-t border-gray-800 relative group/nav">
                 <div className="container mx-auto px-4 h-full">
                     <nav className="flex justify-center items-center gap-10 h-12">
-                        <MenuLink href="https://vellaperfumeria.com">Inicio</MenuLink>
+                        <MenuLink onClick={() => onNavigate('home')}>Inicio</MenuLink>
                         
                         {/* Dropdown for Tienda (Mega Menu) - Full Width Black */}
                         <div className="h-full flex items-center group/tienda">
@@ -258,7 +297,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
                                                         />
                                                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
                                                         
-                                                        {/* Integrated Product Preview from HTML Logic */}
                                                         {promo.featuredProduct && (
                                                             <div className="absolute bottom-0 left-0 w-full p-3 transform translate-y-full group-hover/card:translate-y-0 transition-transform duration-300 bg-black/80 backdrop-blur-sm border-t border-gray-700">
                                                                 <div className="flex items-center gap-3">
@@ -290,9 +328,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
                         <MenuLink onClick={() => onNavigate('catalog')}>Catálogo</MenuLink>
                         <MenuLink onClick={() => onNavigate('ia')}>Asistente IA</MenuLink>
                         <MenuLink onClick={() => onNavigate('blog')}>Blog</MenuLink>
-                        <MenuLink href="/products.csv" download className="text-gray-400 hover:text-white border border-gray-700 px-3 py-1 rounded">
+                        {/* Dynamic Download Button */}
+                        <button onClick={generateAndDownloadCsv} className="text-sm font-bold text-gray-400 hover:text-white border border-gray-700 px-3 py-1 rounded uppercase tracking-wide flex items-center gap-2 transition-colors">
                              <CsvIcon /> Descargar CSV
-                        </MenuLink>
+                        </button>
                     </nav>
                 </div>
             </div>
@@ -300,7 +339,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
             {isMobileMenuOpen && (
                  <div ref={navRef} className="md:hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md shadow-lg border-t border-pink-100 z-20 animate-fade-in">
                      <nav className="flex flex-col p-4 divide-y divide-gray-100 text-black">
-                         <NavLink href="https://vellaperfumeria.com" className="py-3">Inicio</NavLink>
+                         <NavLink onClick={() => handleMobileNav('home')} className="py-3">Inicio</NavLink>
                          <NavLink onClick={() => handleMobileNav('products', 'all')} className="py-3 font-bold text-brand-purple-dark">Tienda - Ver Todo</NavLink>
                          <NavLink onClick={() => handleMobileNav('products', 'skincare')} className="py-3 pl-4 text-sm text-gray-600">Cuidado Facial</NavLink>
                          <NavLink onClick={() => handleMobileNav('products', 'makeup')} className="py-3 pl-4 text-sm text-gray-600">Maquillaje</NavLink>
@@ -311,9 +350,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
                          <NavLink onClick={() => handleMobileNav('catalog')} className="py-3">Catálogo Digital</NavLink>
                          <NavLink onClick={() => handleMobileNav('ia')} className="py-3">Asistente IA</NavLink>
                          <NavLink onClick={() => handleMobileNav('blog')} className="py-3">Blog</NavLink>
-                         <NavLink href="/products.csv" download className="py-3 text-brand-purple-dark flex items-center gap-2">
+                         <button onClick={() => { generateAndDownloadCsv(); setIsMobileMenuOpen(false); }} className="py-3 text-brand-purple-dark flex items-center gap-2 font-bold uppercase text-sm">
                             <CsvIcon /> Descargar CSV
-                         </NavLink>
+                         </button>
                      </nav>
                 </div>
             )}
