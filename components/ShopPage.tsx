@@ -64,17 +64,19 @@ const ShopPage: React.FC<{
 
     // Función para generar y descargar el CSV
     const handleDownloadCsv = () => {
+        // Headers coincidentes con el formato solicitado en products.csv
         const headers = [
-            'ID', 
-            'Nombre', 
-            'Marca', 
-            'Precio Actual', 
-            'Precio Regular', 
-            'Stock', 
-            'Categoría', 
-            'Etiqueta', 
-            'Descripción', 
-            'URL Imagen'
+            'sku', 
+            'name',
+            'description',
+            'short_description', 
+            'brand',
+            'sale_price', 
+            'regular_price', 
+            'stock', 
+            'categories', 
+            'tags', 
+            'images'
         ];
 
         const escapeCsvField = (field: string | number | undefined) => {
@@ -87,18 +89,28 @@ const ShopPage: React.FC<{
             return stringField;
         };
 
-        const rows = allProducts.map(p => [
-            p.id,
-            escapeCsvField(p.name),
-            escapeCsvField(p.brand),
-            p.price,
-            p.regularPrice || '',
-            p.stock,
-            escapeCsvField(p.category),
-            escapeCsvField(p.tag),
-            escapeCsvField(p.description),
-            escapeCsvField(p.imageUrl)
-        ]);
+        const rows = allProducts.map(p => {
+            // Determine price logic for E-commerce CSV import:
+            // If discounted: sale_price = price, regular_price = regularPrice
+            // If not discounted: sale_price = empty, regular_price = price
+            const isDiscounted = p.regularPrice && p.price < p.regularPrice;
+            const salePrice = isDiscounted ? p.price : '';
+            const regularPrice = isDiscounted ? p.regularPrice : p.price;
+
+            return [
+                p.id, // Mapped to SKU
+                escapeCsvField(p.name),
+                escapeCsvField(p.description),
+                escapeCsvField(p.name), // Using name as short description fallback
+                escapeCsvField(p.brand),
+                salePrice,
+                regularPrice,
+                p.stock,
+                escapeCsvField(p.category),
+                escapeCsvField(p.tag || ''),
+                escapeCsvField(p.imageUrl)
+            ];
+        });
 
         const csvContent = [
             headers.join(','), 
