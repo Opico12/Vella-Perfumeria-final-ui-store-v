@@ -4,32 +4,23 @@ import { type Currency, formatCurrency } from './currency';
 import type { Product } from './types';
 
 // --- ICONS ---
-const HeartIcon: React.FC<{isFilled: boolean}> = ({ isFilled }) => (
-    <svg className="h-6 w-6" fill={isFilled ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+const HeartIcon = ({ isFilled }: { isFilled: boolean }) => (
+    <svg className={`h-6 w-6 transition-colors ${isFilled ? 'text-black' : 'text-gray-400 hover:text-black'}`} fill={isFilled ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
     </svg>
 );
 
-const StarIcon: React.FC<{ className?: string; style?: React.CSSProperties }> = ({ className, style }) => (
-    <svg className={`w-3 h-3 ${className}`} style={style} fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+const StarIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg className={`w-4 h-4 ${className}`} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
     </svg>
 );
 
-const CartPlusIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m-2-2h4" />
+const QuickBuyIcon = () => (
+    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M6.434 9H4.5a1.5 1.5 0 0 0-1.486 1.703l1.227 9A1.5 1.5 0 0 0 5.728 21h12.254a1.5 1.5 0 0 0 1.486-1.297l1.227-9A1.5 1.5 0 0 0 19.21 9h-1.933c-.087-2.548-.848-4.078-1.933-4.96C14.208 3.118 12.826 3 11.855 3c-.975 0-2.355.126-3.49 1.051C7.282 4.936 6.521 6.464 6.434 9m1 0c.086-2.329.778-3.533 1.564-4.174.858-.7 1.942-.826 2.857-.826.917 0 2 .12 2.857.817.785.637 1.477 1.84 1.563 4.183zm8.868 1 .053 1.448a.5.5 0 0 0 1-.018c0-.528-.013-.987-.037-1.43h1.891a.5.5 0 0 1 .495.568l-1.227 9a.5.5 0 0 1-.495.432H5.728a.5.5 0 0 1-.496-.432l-1.227-9A.5.5 0 0 1 4.5 10h1.905q-.001.372.01.756.009.333.01.674a.5.5 0 1 0 1 0c0-.285-.006-.535-.012-.766-.005-.236-.01-.452-.008-.664z"></path>
     </svg>
 );
-
-const EyeIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-    </svg>
-);
-
 
 export const ProductCard: React.FC<{
     product: Product;
@@ -45,119 +36,132 @@ export const ProductCard: React.FC<{
     const isDiscounted = product.regularPrice && product.regularPrice > product.price;
     const hasVariants = product.variants && Object.keys(product.variants).length > 0;
 
+    // Get color shades if available (max 4 + counter)
+    const shades = product.variants?.['Tono'] || [];
+    const displayShades = shades.slice(0, 4);
+    const extraShades = shades.length > 4 ? shades.length - 4 : 0;
+
     const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         setIsWishlisted(prev => !prev);
     };
 
-    const renderStars = () => {
-        if (!product.rating) return null;
-        const fullStars = Math.floor(product.rating);
-        const halfStar = product.rating % 1 !== 0;
-        const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-        return (
-            <div className="flex items-center" title={`${product.rating}/5 ★`}>
-                {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} className="text-amber-400" />)}
-                {halfStar && <StarIcon key="half" className="text-amber-400" style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0% 100%)' }} />}
-                {[...Array(emptyStars)].map((_, i) => <StarIcon key={`empty-${i}`} className="text-gray-300" />)}
-            </div>
-        );
-    };
-    
-    const handleAddToCartClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleQuickBuy = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         if (hasVariants) {
-            onQuickView(product); // Open Quick View for variants instead of navigating
+            onQuickView(product);
         } else {
             onQuickAddToCart(product, btnRef.current, null);
         }
     };
 
+    const renderStars = () => {
+        if (!product.rating) return null;
+        const fullStars = Math.round(product.rating);
+        return (
+            <div className="flex items-center gap-0.5" title={`${product.rating}/5`}>
+                {[...Array(5)].map((_, i) => (
+                    <StarIcon key={i} className={i < fullStars ? "text-black" : "text-gray-200"} />
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div 
-            className="bg-white rounded-lg flex flex-col group border border-gray-100 hover:shadow-xl transition-all duration-300 h-full relative overflow-hidden"
+            className="group flex flex-col h-full bg-white relative cursor-pointer"
             onClick={() => onProductSelect(product)}
         >
-            {/* Badges */}
-            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                {isDiscounted && (
-                    <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase">
-                        -{Math.round(((product.regularPrice! - product.price) / product.regularPrice!) * 100)}%
-                    </span>
-                )}
-                {product.tag && (
-                    <span className="bg-brand-purple text-brand-primary text-[10px] font-bold px-2 py-1 rounded uppercase shadow-sm">
-                        {product.tag}
-                    </span>
-                )}
-            </div>
+            {/* Image Container */}
+            <div className="relative aspect-square overflow-hidden bg-gray-50 mb-3">
+                <img 
+                    src={product.imageUrl} 
+                    alt={product.name} 
+                    className="w-full h-full object-contain p-4 mix-blend-multiply transition-transform duration-500 group-hover:scale-105" 
+                />
 
-            <div className="relative cursor-pointer overflow-hidden bg-gray-50 aspect-[4/5]">
-                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" />
+                {/* Labels (Top Left) */}
+                <div className="absolute top-0 left-0 p-2 flex flex-col gap-1">
+                    {(product.tag === 'NOVEDAD' || product.tag === 'OFERTA') && (
+                        <span className="bg-black text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wide">
+                            {product.tag === 'NOVEDAD' ? 'Novedad' : 'Oferta'}
+                        </span>
+                    )}
+                </div>
 
-                {/* Hover Overlay Actions */}
-                <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button
+                {/* Actions (Floating) */}
+                <div className="absolute top-2 right-2 flex flex-col gap-2">
+                    <button 
                         onClick={handleToggleWishlist}
-                        className={`p-2 rounded-full shadow-md transition-all transform hover:scale-110 ${isWishlisted ? 'bg-red-500 text-white' : 'bg-white text-gray-600 hover:text-red-500'}`}
-                        aria-label="Añadir a favoritos"
+                        className="bg-white rounded-full p-2 shadow-sm hover:bg-gray-100 transition-colors z-20"
                     >
                         <HeartIcon isFilled={isWishlisted} />
                     </button>
+                </div>
+
+                {/* Quick Buy Button (Bottom Right Overlay) */}
+                <div className="absolute bottom-2 right-2 z-20">
                     <button
-                        onClick={(e) => { e.stopPropagation(); onQuickView(product); }}
-                        className="p-2 rounded-full bg-white text-gray-600 shadow-md transition-all transform hover:scale-110 hover:text-brand-primary"
-                        aria-label="Vista Rápida"
+                        ref={btnRef}
+                        onClick={handleQuickBuy}
+                        className="bg-white rounded-full p-2.5 shadow-md text-black hover:bg-brand-purple hover:text-brand-primary transition-colors border border-gray-100"
+                        aria-label="Compra rápida"
                     >
-                        <EyeIcon />
+                        <QuickBuyIcon />
                     </button>
                 </div>
             </div>
 
-            <div className="p-4 flex flex-col flex-grow justify-between">
-                <div>
-                    {product.rating && (
-                        <div className="flex items-center gap-1 mb-1">
-                            {renderStars()}
-                            <span className="text-[10px] text-gray-400">({product.reviewCount})</span>
-                        </div>
-                    )}
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">{product.brand}</span>
-                    <h3 className="text-sm font-bold text-brand-primary leading-snug line-clamp-2 group-hover:text-brand-purple-dark transition-colors mb-2">
-                        {product.name}
-                    </h3>
-                    
-                     {product.variants?.Tono && (
-                        <div className="flex items-center gap-1 mb-2">
-                            {product.variants.Tono.slice(0, 5).map(v => (
-                                <span key={v.value} className="block w-3 h-3 rounded-full border border-gray-200 shadow-sm" style={{ backgroundColor: v.colorCode }} title={v.value}></span>
-                            ))}
-                            {product.variants.Tono.length > 5 && <span className="text-[10px] text-gray-400">+</span>}
-                        </div>
+            {/* Product Info */}
+            <div className="flex flex-col flex-grow px-1">
+                {/* Rating */}
+                <div className="flex items-center gap-1 mb-1">
+                    {renderStars()}
+                    {product.reviewCount && (
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wide">({product.reviewCount})</span>
                     )}
                 </div>
-                
-                {/* Price & Basket Area - Designed to look like "names in little baskets" */}
-                <div className="mt-3 flex items-end justify-between gap-2 pt-3 border-t border-gray-50">
-                    <div className="flex flex-col">
-                         {isDiscounted && (
-                            <span className="text-xs text-gray-400 line-through decoration-red-300">{formatCurrency(product.regularPrice!, currency)}</span>
+
+                {/* Brand */}
+                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-1">
+                    {product.brand}
+                </span>
+
+                {/* Name */}
+                <h3 className="text-sm font-normal text-gray-900 leading-snug mb-2 line-clamp-2 min-h-[2.5em]">
+                    {product.name}
+                </h3>
+
+                {/* Shades / Variants */}
+                {shades.length > 0 && (
+                    <div className="flex items-center gap-1 mb-3">
+                        {displayShades.map((shade) => (
+                            <div 
+                                key={shade.value} 
+                                className="w-4 h-4 rounded-full border border-gray-200 shadow-sm" 
+                                style={{ backgroundColor: shade.colorCode || '#ddd' }}
+                                title={shade.value}
+                            />
+                        ))}
+                        {extraShades > 0 && (
+                            <span className="text-[10px] text-gray-500 ml-1">+{extraShades}</span>
                         )}
-                        <span className={`text-lg font-extrabold ${isDiscounted ? 'text-red-600' : 'text-brand-primary'}`}>
-                            {formatCurrency(product.price, currency)}
-                        </span>
                     </div>
-                    
-                    <button
-                        ref={btnRef}
-                        onClick={handleAddToCartClick}
-                        className="bg-black text-white p-2.5 rounded-lg shadow-lg hover:bg-brand-purple-dark hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center group/btn"
-                        aria-label={`Añadir ${product.name} al carrito`}
-                        title="Añadir a la cesta"
-                    >
-                        <CartPlusIcon />
-                    </button>
+                )}
+
+                {/* Spacer to push price to bottom */}
+                <div className="flex-grow"></div>
+
+                {/* Price */}
+                <div className="mt-1">
+                    <span className="text-lg font-bold text-black">
+                        {formatCurrency(product.price, currency)}
+                    </span>
+                    {isDiscounted && (
+                        <span className="text-sm text-gray-400 line-through ml-2">
+                            {formatCurrency(product.regularPrice!, currency)}
+                        </span>
+                    )}
                 </div>
             </div>
         </div>

@@ -113,10 +113,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
         setIsMobileMenuOpen(false);
     }
 
-    // Dynamic CSV Generation function
+    // --- GENERACIÓN DINÁMICA DE CSV PARA WOOCOMMERCE ---
     const generateAndDownloadCsv = () => {
+        // Cabeceras exactas para WooCommerce Import
         const headers = [
-            'sku', 'name', 'description', 'brand', 'sale_price', 'regular_price', 'stock', 'categories', 'tags', 'images'
+            "ID", "Type", "SKU", "Name", "Published", "Short description", 
+            "Description", "Regular price", "Sale price", "Stock", 
+            "Manage stock?", "Categories", "Tags", "Images"
         ];
 
         const escapeField = (field: any) => {
@@ -130,26 +133,38 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
 
         const rows = allProducts.map(p => {
             const isDiscounted = p.regularPrice && p.price < p.regularPrice;
+            const regularPrice = isDiscounted ? p.regularPrice : p.price;
+            const salePrice = isDiscounted ? p.price : '';
+
+            // Short description: first sentence of description or name
+            const shortDesc = p.description.split('.')[0] + '.';
+
             return [
-                p.id,
-                escapeField(p.name),
-                escapeField(p.description),
-                escapeField(p.brand),
-                isDiscounted ? p.price : '', // Sale Price only if discounted
-                isDiscounted ? p.regularPrice : p.price, // Regular Price
-                p.stock,
-                escapeField(p.category),
-                escapeField(p.tag || ''),
-                escapeField(p.imageUrl)
+                p.id,                           // ID
+                'simple',                       // Type
+                p.id,                           // SKU
+                escapeField(p.name),            // Name
+                1,                              // Published
+                escapeField(shortDesc),         // Short description
+                escapeField(p.description),     // Description
+                regularPrice,                   // Regular price
+                salePrice,                      // Sale price
+                p.stock,                        // Stock
+                1,                              // Manage stock?
+                escapeField(p.category),        // Categories
+                escapeField(p.tag || ''),       // Tags
+                escapeField(p.imageUrl)         // Images
             ].join(',');
         });
 
-        const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n'); // Add BOM for Excel compatibility
+        // \uFEFF es el BOM para que Excel/Windows lea UTF-8 correctamente
+        const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n'); 
+        
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.setAttribute('href', url);
-        link.setAttribute('download', 'productos_vellaperfumeria_completo.csv');
+        link.setAttribute('download', 'productos_woocommerce_vellaperfumeria.csv');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
