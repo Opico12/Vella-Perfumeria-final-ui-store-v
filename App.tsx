@@ -20,6 +20,7 @@ import QuickViewModal from './components/QuickViewModal';
 import Breadcrumbs, { type BreadcrumbItem } from './components/Breadcrumbs';
 import CheckoutPage from './components/CheckoutPage';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
+import ShadeSelectorPage from './components/ShadeSelectorPage';
 
 type AppView = {
     current: View;
@@ -33,7 +34,6 @@ const App: React.FC = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
-    // Load cart from local storage on initial render
     useEffect(() => {
         try {
             const storedCart = localStorage.getItem('vellaperfumeria_cart');
@@ -45,7 +45,6 @@ const App: React.FC = () => {
         }
     }, []);
 
-    // Save cart to local storage whenever it changes
     useEffect(() => {
         try {
             localStorage.setItem('vellaperfumeria_cart', JSON.stringify(cartItems));
@@ -54,7 +53,6 @@ const App: React.FC = () => {
         }
     }, [cartItems]);
     
-    // Scroll to top on view change
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [view]);
@@ -65,17 +63,6 @@ const App: React.FC = () => {
 
     const handleProductSelect = (product: Product) => {
         handleNavigate('productDetail', product);
-    };
-
-    const showAddToCartConfirmation = (buttonElement: HTMLButtonElement | null) => {
-        if (!buttonElement) return;
-        const originalText = buttonElement.innerHTML;
-        buttonElement.innerHTML = '¡Añadido! ✔';
-        buttonElement.classList.add('bg-green-500', 'hover:bg-green-600');
-        setTimeout(() => {
-            buttonElement.innerHTML = originalText;
-            buttonElement.classList.remove('bg-green-500', 'hover:bg-green-600');
-        }, 2000);
     };
 
     const handleAddToCart = (product: Product, buttonElement: HTMLButtonElement | null, selectedVariant: Record<string, string> | null) => {
@@ -94,7 +81,6 @@ const App: React.FC = () => {
         }
         
         setIsCartOpen(true);
-        if(buttonElement) showAddToCartConfirmation(buttonElement);
     };
     
     const handleQuickAddToCart = (product: Product, buttonElement: HTMLButtonElement | null, selectedVariant: Record<string, string> | null) => {
@@ -143,6 +129,8 @@ const App: React.FC = () => {
                 return <AsistenteIAPage />;
             case 'catalog':
                 return <CatalogPage onAddToCart={handleAddToCart} onQuickAddToCart={handleQuickAddToCart} onProductSelect={handleProductSelect} onQuickView={setQuickViewProduct} currency={currency} />;
+            case 'shadeSelector':
+                return <ShadeSelectorPage onProductSelect={handleProductSelect} />;
             case 'blog':
                  return <BlogPage posts={blogPosts} onSelectPost={handleSelectPost} />;
             case 'blogPost':
@@ -161,35 +149,13 @@ const App: React.FC = () => {
         switch(view.current) {
             case 'products':
                 crumbs.push({ label: 'Tienda', onClick: () => handleNavigate('products', 'all') });
-                if (view.payload && view.payload !== 'all') {
-                    const categoryName = categories.find(c => c.key === view.payload)?.name || view.payload;
-                    crumbs.push({ label: categoryName });
-                }
+                break;
+            case 'shadeSelector':
+                crumbs.push({ label: 'Selector de Tono' });
                 break;
             case 'productDetail':
-                {
-                    const product = view.payload as Product;
-                    const categoryName = categories.find(c => c.key === product.category)?.name || product.category;
-                    crumbs.push({ label: 'Tienda', onClick: () => handleNavigate('products', 'all') });
-                    crumbs.push({ label: categoryName, onClick: () => handleNavigate('products', product.category) });
-                    crumbs.push({ label: product.name });
-                }
-                break;
-            case 'ofertas':
-                crumbs.push({ label: 'Ideas Regalo' });
-                break;
-             case 'ia':
-                crumbs.push({ label: 'Asistente IA' });
-                break;
-            case 'catalog':
-                crumbs.push({ label: 'Catálogo' });
-                break;
-            case 'blog':
-                crumbs.push({ label: 'Blog' });
-                break;
-            case 'blogPost':
-                crumbs.push({ label: 'Blog', onClick: () => handleNavigate('blog') });
-                crumbs.push({ label: view.payload.title });
+                crumbs.push({ label: 'Tienda', onClick: () => handleNavigate('products', 'all') });
+                crumbs.push({ label: (view.payload as Product).name });
                 break;
             case 'checkout':
                 crumbs.push({ label: 'Finalizar Compra' });
@@ -198,18 +164,6 @@ const App: React.FC = () => {
 
         return crumbs;
     };
-
-    const categories = [
-        { key: 'all', name: 'Todos los productos' },
-        { key: 'skincare', name: 'Cuidado Facial' },
-        { key: 'makeup', name: 'Maquillaje' },
-        { key: 'perfume', name: 'Fragancias' },
-        { key: 'wellness', name: 'Wellness' },
-        { key: 'hair', name: 'Cuidado del Cabello' },
-        { key: 'personal-care', name: 'Cuidado Personal' },
-        { key: 'men', name: 'Hombre' },
-        { key: 'accessories', name: 'Accesorios' },
-    ];
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
@@ -225,7 +179,6 @@ const App: React.FC = () => {
                 {renderContent()}
             </main>
             <Footer onNavigate={handleNavigate} />
-            
             <FloatingWhatsApp />
 
             <CartSidebar
@@ -260,59 +213,11 @@ const App: React.FC = () => {
                     --color-secondary: #E0C3FC; 
                     --color-accent: #d1a892;
                 }
-                .btn-primary {
-                    background-color: var(--color-primary);
-                    color: white;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 0.375rem;
-                    font-weight: 600;
-                    transition: background-color 0.2s;
-                }
-                .btn-primary:hover {
-                    background-color: #555;
-                }
-                 .bg-brand-primary { background-color: #3a3a3a; }
-                 .text-brand-primary { color: #3a3a3a; }
-                 
-                 /* Moradito Claro - Soft Lilac */
-                 .bg-brand-purple { background-color: #E0C3FC; } 
-                 .text-brand-purple { color: #E0C3FC; }
-                 
-                 .bg-brand-purple-dark { background-color: #d1a892; }
-                 .text-brand-purple-dark { color: #d1a892; }
-                 .border-brand-purple { border-color: #E0C3FC; }
-                 .border-brand-purple-dark { border-color: #d1a892; }
-                 .ring-brand-purple { ring-color: #E0C3FC; }
-                 .ring-brand-purple-dark { ring-color: #d1a892; }
-                 .hover-underline-effect {
-                    display: inline-block;
-                    position: relative;
-                 }
-                 .hover-underline-effect::after {
-                    content: '';
-                    position: absolute;
-                    width: 100%;
-                    transform: scaleX(0);
-                    height: 2px;
-                    bottom: -2px;
-                    left: 0;
-                    background-color: var(--color-primary);
-                    transform-origin: bottom right;
-                    transition: transform 0.25s ease-out;
-                 }
-                 .hover-underline-effect:hover::after {
-                    transform: scaleX(1);
-                    transform-origin: bottom left;
-                 }
-                 .logo-inverted { filter: brightness(0) invert(1); }
-                 @keyframes pop {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.3); }
-                    100% { transform: scale(1); }
-                 }
-                 .animate-pop {
-                    animation: pop 0.3s ease-out;
-                 }
+                .bg-brand-purple { background-color: #E29CD2; } 
+                .text-brand-purple { color: #E29CD2; }
+                .bg-brand-purple-dark { background-color: #C079B0; }
+                @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
             `}</style>
         </div>
     );
