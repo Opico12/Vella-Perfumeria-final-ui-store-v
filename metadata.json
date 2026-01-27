@@ -1,5 +1,7 @@
 {
-  "name": "Copy of Copy of Copy of Vellaperfumeria Store UI",
-  "description": "el color y el timeline stylo al  realizar los estilismos con el color y galeria de cosmeticos.Proveedor de cosmetica y wellnes ",
-  "requestFramePermissions": []
+  "name": "Vellaperfumeria Store UI 2026",
+  "description": "Plataforma de lujo Oriflame 2026. Cosmética, fragancias y bienestar con diagnóstico de tono inteligente.",
+  "requestFramePermissions": [
+    "camera"
+  ]
 }

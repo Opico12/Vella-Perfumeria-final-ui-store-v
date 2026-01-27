@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { View } from './types';
 import type { Currency } from './currency';
 import { allProducts } from './products';
@@ -50,7 +50,7 @@ const ChevronDownIcon = () => (
 const NavLink: React.FC<{ onClick?: () => void, children: React.ReactNode, className?: string }> = ({ onClick, children, className = "" }) => (
     <button 
         onClick={onClick} 
-        className={`text-sm font-bold text-white hover:text-[#E29CD2] transition-colors duration-200 uppercase tracking-wide flex items-center gap-1 h-full px-6 ${className}`}
+        className={`text-sm font-bold text-white hover:text-[#E29CD2] transition-colors duration-200 uppercase tracking-widest flex items-center gap-1 h-full px-6 ${className}`}
     >
         {children}
     </button>
@@ -67,41 +67,34 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange, cartCount, onCartClick }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    // Productos destacados para el Mega Menú 2026
-    const menuFeatured = allProducts.filter(p => [47511, 46060, 13659, 48954].includes(p.id));
+    // Productos destacados para visual en el Mega Menú
+    const featuredSkincare = allProducts.filter(p => [42444, 13659, 45248, 48918].includes(p.id));
 
     return (
-        <header className="sticky top-0 z-50 flex flex-col w-full shadow-md">
-            {/* Top Bar (Rosa Orquídea Claro #E29CD2) */}
-            <div className="bg-[#E29CD2] text-black py-1.5 text-[10px] font-black border-b border-black/5">
-                <div className="container mx-auto px-4 flex justify-between items-center uppercase tracking-widest">
-                    <div className="flex items-center space-x-3">
+        <header className="sticky top-0 z-50 flex flex-col w-full">
+            {/* Top Bar (Rosa Orquídea) */}
+            <div className="bg-[#E29CD2] text-black py-1.5 text-[10px] font-black">
+                <div className="container mx-auto px-4 flex justify-between items-center uppercase tracking-[3px]">
+                    <div className="flex items-center space-x-4">
                         <ThreadsIcon /> <InstagramIcon /> <FacebookIcon /> <WhatsAppIcon />
                     </div>
-                    <div className="hidden md:block">
-                        ¡BIENVENIDO AL CATÁLOGO 2026! ENVÍO GRATIS A PARTIR DE 35€
-                    </div>
-                    <div className="text-right font-black tracking-tight">VELLAPERFUMERIA</div>
+                    <div className="hidden md:block">ENVÍO GRATIS A PARTIR DE 35€ • CATÁLOGO 2026</div>
+                    <div className="text-right">VELLAPERFUMERIA</div>
                 </div>
             </div>
 
-            {/* Main Header (White) */}
-            <div className="bg-white py-4 md:py-6 border-b border-gray-100">
+            {/* Main Branding Section (White) */}
+            <div className="bg-white py-6 border-b border-gray-100">
                 <div className="container mx-auto px-4 flex items-center justify-between">
-                    {/* Burger for Mobile */}
-                    <button 
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="md:hidden p-2 text-black hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                        <MenuIcon />
-                    </button>
+                    {/* Mobile Toggle */}
+                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-black"><MenuIcon /></button>
 
-                    {/* Left Actions (Desktop) */}
+                    {/* Currency (Desktop) */}
                     <div className="hidden md:flex items-center w-1/4">
                         <select
                             value={currency}
                             onChange={(e) => onCurrencyChange(e.target.value as Currency)}
-                            className="text-xs font-bold bg-transparent border-none focus:ring-0 cursor-pointer text-gray-800"
+                            className="text-xs font-bold bg-transparent border-none focus:ring-0 cursor-pointer uppercase tracking-widest"
                         >
                             <option value="EUR">EUR (€)</option>
                             <option value="USD">USD ($)</option>
@@ -109,23 +102,23 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
                         </select>
                     </div>
 
-                    {/* Center Logo */}
+                    {/* Central Logo */}
                     <div className="flex-shrink-0">
-                        <button onClick={() => onNavigate('home')} className="hover:opacity-90 transition-opacity">
+                        <button onClick={() => onNavigate('home')}>
                             <img 
                                 src="https://i0.wp.com/vellaperfumeria.com/wp-content/uploads/2025/06/1000003724-removebg-preview.png" 
                                 alt="Vellaperfumeria" 
-                                className="h-20 md:h-28 w-auto mx-auto" 
+                                className="h-20 md:h-32 w-auto mx-auto hover:opacity-80 transition-opacity" 
                             />
                         </button>
                     </div>
 
-                    {/* Right Actions (Cart) */}
+                    {/* Cart Section */}
                     <div className="flex items-center justify-end w-1/4">
                         <button onClick={onCartClick} className="relative p-2 text-gray-800 hover:text-[#E29CD2] transition-colors">
                             <CartIcon />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                                <span className="absolute -top-1 -right-1 bg-black text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
                                     {cartCount}
                                 </span>
                             )}
@@ -134,65 +127,63 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
                 </div>
             </div>
 
-            {/* FULL WIDTH BLACK NAV BAR WITH VISIBLE MEGA MENU */}
-            <div className="hidden md:block bg-black w-full border-t border-gray-900 group/nav-container">
-                <div className="container mx-auto px-4">
+            {/* FULL WIDTH BLACK NAV BAR */}
+            <div className="hidden md:block bg-black w-full border-t border-gray-900 group/navbar">
+                <div className="container mx-auto">
                     <nav className="flex justify-center h-14 relative">
                         <NavLink onClick={() => onNavigate('home')}>Inicio</NavLink>
-
-                        {/* Dropdown Tienda (Mega Menu Full Width) */}
-                        <div className="h-full group/tienda">
-                            <button className="text-sm font-bold text-white hover:text-[#E29CD2] transition-colors duration-200 uppercase tracking-wide flex items-center gap-1 h-full px-6">
+                        
+                        {/* Mega Menu Dropdown */}
+                        <div className="h-full group/dropdown">
+                            <button className="text-sm font-bold text-white hover:text-[#E29CD2] transition-colors duration-200 uppercase tracking-widest flex items-center gap-1 h-full px-8">
                                 Tienda <ChevronDownIcon />
                             </button>
                             
-                            {/* Mega Menu Dropdown - FULL WIDTH BLACK */}
-                            <div className="fixed top-auto left-0 w-full bg-black border-t border-gray-800 shadow-2xl opacity-0 invisible group-hover/tienda:opacity-100 group-hover/tienda:visible transition-all duration-300 z-50">
-                                <div className="container mx-auto px-8 py-12">
+                            {/* Mega Panel (Full Width Black) */}
+                            <div className="fixed top-auto left-0 w-full bg-black border-t border-gray-800 shadow-2xl opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-300 z-50">
+                                <div className="container mx-auto px-10 py-12">
                                     <div className="grid grid-cols-4 gap-12">
+                                        {/* Col 1: Tratamientos */}
+                                        <div className="flex flex-col space-y-3">
+                                            <h3 className="text-[#E29CD2] text-xs font-black uppercase tracking-[2px] mb-2">Tratamientos Faciales</h3>
+                                            <button onClick={() => onNavigate('products', 'skincare')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">NovAge+ Pro-Collagen</button>
+                                            <button onClick={() => onNavigate('products', 'skincare')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Diamond Cellular</button>
+                                            <button onClick={() => onNavigate('products', 'skincare')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Optimals Hydra Radiance</button>
+                                            <button onClick={() => onNavigate('products', 'skincare')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Sérums Iluminadores</button>
+                                        </div>
                                         
-                                        {/* Columna 1: Categorías de Lujo */}
-                                        <div className="flex flex-col space-y-4">
-                                            <h3 className="text-[#E29CD2] text-xs font-black uppercase tracking-[2px] border-b border-gray-800 pb-2">Destacados 2026</h3>
-                                            <button onClick={() => onNavigate('products', 'skincare')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Cuidado Facial Premium</button>
-                                            <button onClick={() => onNavigate('products', 'skincare')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Línea Diamond Cellular</button>
-                                            <button onClick={() => onNavigate('products', 'perfume')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Fragancias Exclusive</button>
-                                            <button onClick={() => onNavigate('products', 'makeup')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Eternal Glow Giordani Gold</button>
+                                        {/* Col 2: Belleza y Más */}
+                                        <div className="flex flex-col space-y-3">
+                                            <h3 className="text-[#E29CD2] text-xs font-black uppercase tracking-[2px] mb-2">Belleza y Estilo</h3>
+                                            <button onClick={() => onNavigate('products', 'makeup')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Maquillaje Giordani Gold</button>
+                                            <button onClick={() => onNavigate('products', 'perfume')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Fragancias Premium</button>
+                                            <button onClick={() => onNavigate('products', 'accessories')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Dispositivos Faciales</button>
+                                            <button onClick={() => onNavigate('products', 'accessories')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Accesorios Skincare</button>
                                         </div>
 
-                                        {/* Columna 2: Regalar con Cariño */}
-                                        <div className="flex flex-col space-y-4">
-                                            <h3 className="text-[#E29CD2] text-xs font-black uppercase tracking-[2px] border-b border-gray-800 pb-2">Regalos & Accesorios</h3>
-                                            <button onClick={() => onNavigate('products', 'accessories')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Joyas Pearl Glitters of Love</button>
-                                            <button onClick={() => onNavigate('products', 'accessories')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Relojes Exclusive</button>
-                                            <button onClick={() => onNavigate('products', 'accessories')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Neceseres Premium</button>
-                                            <button onClick={() => onNavigate('ofertas')} className="text-white hover:text-[#E29CD2] text-sm text-left transition-colors font-medium">Sets de Regalo Festive</button>
-                                        </div>
-
-                                        {/* Columna 3-4: Visuales y Enlaces Directos */}
-                                        <div className="col-span-2 grid grid-cols-2 gap-4">
-                                            {menuFeatured.slice(0, 4).map(prod => (
+                                        {/* Col 3-4: Visual Showcase */}
+                                        <div className="col-span-2 grid grid-cols-2 gap-6">
+                                            {featuredSkincare.map(prod => (
                                                 <div 
                                                     key={prod.id} 
-                                                    className="bg-gray-900 rounded-lg p-3 flex items-center gap-4 hover:bg-gray-800 cursor-pointer transition-colors border border-gray-800"
+                                                    className="bg-gray-900/50 p-4 rounded-xl flex items-center gap-4 border border-gray-800 hover:border-[#E29CD2] cursor-pointer transition-all"
                                                     onClick={() => onNavigate('productDetail', prod)}
                                                 >
-                                                    <img src={prod.imageUrl} alt="" className="w-16 h-16 object-contain rounded bg-white p-1" />
-                                                    <div className="min-w-0">
-                                                        <p className="text-white text-[10px] font-bold truncate uppercase tracking-tight">{prod.name}</p>
-                                                        <p className="text-[#E29CD2] text-xs font-black">{prod.price} €</p>
-                                                        <span className="text-[9px] text-gray-500 font-bold underline">VER PRODUCTO</span>
+                                                    <img src={prod.imageUrl} alt="" className="w-16 h-16 object-contain bg-white rounded-lg p-1" />
+                                                    <div className="overflow-hidden">
+                                                        <p className="text-white text-[10px] font-bold uppercase truncate tracking-tighter">{prod.name}</p>
+                                                        <p className="text-[#E29CD2] text-xs font-black mt-1">{prod.price} €</p>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <NavLink onClick={() => onNavigate('ofertas')}>Ofertas 2026</NavLink>
+                        <NavLink onClick={() => onNavigate('shadeSelector')}>Buscar mi Tono</NavLink>
+                        <NavLink onClick={() => onNavigate('ofertas')}>Ofertas</NavLink>
                         <NavLink onClick={() => onNavigate('catalog')}>Catálogo Digital</NavLink>
                         <NavLink onClick={() => onNavigate('ia')}>Asistente IA</NavLink>
                         <NavLink onClick={() => onNavigate('blog')}>Blog</NavLink>
@@ -200,14 +191,14 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currency, onCurrencyChange,
                 </div>
             </div>
 
-            {/* Mobile Navigation Drawer */}
+            {/* Mobile Nav Drawer */}
             {isMobileMenuOpen && (
-                <div className="md:hidden bg-black text-white w-full border-t border-gray-800">
-                    <nav className="flex flex-col p-4 divide-y divide-gray-800">
-                        <button onClick={() => {onNavigate('home'); setIsMobileMenuOpen(false)}} className="py-4 text-left font-bold uppercase tracking-wide">Inicio</button>
-                        <button onClick={() => {onNavigate('products', 'all'); setIsMobileMenuOpen(false)}} className="py-4 text-left font-bold uppercase tracking-wide text-[#E29CD2]">Tienda 2026</button>
-                        <button onClick={() => {onNavigate('ofertas'); setIsMobileMenuOpen(false)}} className="py-4 text-left font-bold uppercase tracking-wide">Ofertas Especiales</button>
-                        <button onClick={() => {onNavigate('catalog'); setIsMobileMenuOpen(false)}} className="py-4 text-left font-bold uppercase tracking-wide">Catálogo Digital</button>
+                <div className="md:hidden bg-black text-white w-full border-t border-gray-900">
+                    <nav className="flex flex-col p-6 divide-y divide-gray-800">
+                        <button onClick={() => {onNavigate('home'); setIsMobileMenuOpen(false)}} className="py-4 text-left font-black uppercase tracking-widest text-sm">Inicio</button>
+                        <button onClick={() => {onNavigate('products', 'all'); setIsMobileMenuOpen(false)}} className="py-4 text-left font-black uppercase tracking-widest text-sm text-[#E29CD2]">Tienda 2026</button>
+                        <button onClick={() => {onNavigate('shadeSelector'); setIsMobileMenuOpen(false)}} className="py-4 text-left font-black uppercase tracking-widest text-sm">Selector de Tono</button>
+                        <button onClick={() => {onNavigate('ofertas'); setIsMobileMenuOpen(false)}} className="py-4 text-left font-black uppercase tracking-widest text-sm">Ofertas</button>
                     </nav>
                 </div>
             )}
